@@ -10,6 +10,12 @@ const Protected: React.FC = () => {
     error,
   } = trpc.useQuery(["protected.getUser"]);
 
+  trpc.useSubscription(["protected.getNews"], {
+    onNext(text) {
+      console.log(text);
+    },
+  });
+
   if (isError) {
     return <NextError statusCode={error?.data?.httpStatus ?? 500} />;
   }
