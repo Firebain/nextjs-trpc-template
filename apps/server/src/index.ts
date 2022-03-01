@@ -1,96 +1,18 @@
-import * as trcp from "@trpc/server";
 import {
   CreateFastifyContextOptions,
   fastifyTRPCPlugin,
 } from "@trpc/server/adapters/fastify";
-import fastify, { FastifyRequest } from "fastify";
+import fastify from "fastify";
 import plugin from "fastify-plugin";
 import ws from "fastify-websocket";
 import cors from "fastify-cors";
-import cookie from "cookie";
-import { TRPCError } from "@trpc/server";
+import { Context, createGlobalRouter } from "./modules/trpc";
+import { users } from "./routers/user";
+import { auth } from "./routers/auth";
 
-interface Context {
-  request: FastifyRequest;
-}
-
-interface Post {
-  name: string;
-  text: string;
-}
-
-const posts = trcp.router<Context>().query("getPosts", {
-  async resolve(): Promise<Post[]> {
-    return [
-      {
-        name: "FIRST",
-        text: "FIRST TEXT",
-      },
-      {
-        name: "SECOND",
-        text: "SECOND TEXT",
-      },
-      {
-        name: "THIRD",
-        text: "THIRD TEXT",
-      },
-    ];
-  },
-});
-
-const priv = trcp
-  .router<Context>()
-  .middleware(({ ctx, next }) => {
-    const getTokenFromHeader = () => {
-      const authorizationHeader = ctx.request.headers["authorization"];
-
-      if (!authorizationHeader) {
-        return undefined;
-      }
-
-      return authorizationHeader.slice(7);
-    };
-
-    const getTokenFromCookie = (): string | undefined => {
-      const cookies = ctx.request.headers.cookie
-        ? cookie.parse(ctx.request.headers.cookie)
-        : {};
-
-      return cookies.token;
-    };
-
-    const token = getTokenFromHeader() ?? getTokenFromCookie();
-
-    if (!token) {
-      throw new TRPCError({
-        code: "FORBIDDEN",
-      });
-    }
-
-    return next({
-      ctx,
-    });
-  })
-  .query("getUser", {
-    resolve() {
-      return {
-        name: "Fedya",
-        surname: "Pupkin",
-      };
-    },
-  })
-  .subscription("getNews", {
-    resolve() {
-      return new trcp.Subscription<string>((emit) => {
-        return () => {};
-      });
-    },
-  });
-
-const appRouter = trcp
-  .router<Context>()
-  .merge("posts.", posts)
-  .merge("protected.", priv);
+export const appRouter = createGlobalRouter()
+  .merge("users.", users)
+  .merge("auth.", auth);
 
 const app = fastify();
 
@@ -110,8 +32,22 @@ app.register(plugin(fastifyTRPCPlugin), {
   },
 });
 
-export type AppRouter = typeof appRouter;
-
 app.listen(3001, "0.0.0.0", () => {
   console.log("✅ Server was started at 3001");
 });
+
+export type AppRouter = typeof appRouter;
+
+export type {
+  TQuery,
+  TMutation,
+  TSubscription,
+  InferQueryOutput,
+  InferQueryInput,
+  InferMutationOutput,
+  InferMutationInput,
+  InferSubscriptionOutput,
+  InferAsyncSubscriptionOutput,
+  InferSubscriptionInput,
+  InferQueryHandlerInput,
+} from "./types";

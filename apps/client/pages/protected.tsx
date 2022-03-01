@@ -1,39 +1,48 @@
-import { trpc } from "../utils/trpc";
-import NextError from "next/error";
 import Link from "next/link";
+import AuthLayout, { useUser } from "../components/AuthLayout";
+import { useRouter } from "next/router";
+import { NextPage } from "next";
 
-const Protected: React.FC = () => {
-  const {
-    data: user,
-    isLoading,
-    isError,
-    error,
-  } = trpc.useQuery(["protected.getUser"]);
+const Protected: React.VFC = () => {
+  const router = useRouter();
+  const { user, logout } = useUser();
 
-  trpc.useSubscription(["protected.getNews"], {
-    onNext(text) {
-      console.log(text);
-    },
-  });
+  // trpc.useSubscription(["protected.getNews"], {
+  //   onNext(text) {
+  //     console.log(text);
+  //   },
+  // });
 
-  if (isError) {
-    return <NextError statusCode={error?.data?.httpStatus ?? 500} />;
-  }
+  const onLogout = async () => {
+    await router.push("/");
 
-  if (isLoading) {
-    return <p>Loading...</p>;
-  }
+    await logout();
+  };
 
   return (
     <>
       <div>PROTECTED</div>
+
       <div>
-        <p>{user!.name}</p>
-        <p>{user!.surname}</p>
+        <p>{user.name}</p>
+        <p>{user.surname}</p>
       </div>
-      <Link href="/">MAIN</Link>
+
+      <div>
+        <button onClick={onLogout}>Logout</button>
+      </div>
+
+      <div>
+        <Link href="/">MAIN</Link>
+      </div>
     </>
   );
 };
 
-export default Protected;
+const ProtectedPage: NextPage = () => (
+  <AuthLayout>
+    <Protected />
+  </AuthLayout>
+);
+
+export default ProtectedPage;

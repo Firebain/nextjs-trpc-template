@@ -1,5 +1,5 @@
 import "../styles/globals.css";
-import { withTRPC } from "@trpc/next";
+import { withTRPC as withTRPCSetup } from "@trpc/next";
 import cookie from "cookie";
 import type { AppRouter } from "server";
 import type { AppProps } from "next/app";
@@ -7,12 +7,13 @@ import { createWSClient, wsLink } from "@trpc/client/links/wsLink";
 import { httpBatchLink } from "@trpc/client/links/httpBatchLink";
 import { splitLink } from "@trpc/client/links/splitLink";
 import { TRPCLink } from "@trpc/client";
+import { withAuth } from "../contexts/AuthContext";
 
 function MyApp({ Component, pageProps }: AppProps) {
   return <Component {...pageProps} />;
 }
 
-export default withTRPC<AppRouter>({
+const withTRPC = withTRPCSetup<AppRouter>({
   config({ ctx }) {
     const isSSR = typeof window === "undefined";
 
@@ -102,4 +103,6 @@ export default withTRPC<AppRouter>({
     return {};
   },
   ssr: true,
-})(MyApp);
+});
+
+export default withTRPC(withAuth(MyApp));
