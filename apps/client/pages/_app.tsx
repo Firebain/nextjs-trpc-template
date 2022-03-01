@@ -16,6 +16,8 @@ export default withTRPC<AppRouter>({
   config({ ctx }) {
     const isSSR = typeof window === "undefined";
 
+    const host = isSSR ? "localhost:3001/trpc" : "localhost:3001/trpc";
+
     const getHeaders = () => {
       let authHeaders: { Authorization?: string } = {};
 
@@ -49,9 +51,7 @@ export default withTRPC<AppRouter>({
       };
     };
 
-    const url = isSSR
-      ? "http://localhost:3001/trpc"
-      : "http://localhost:3001/trpc";
+    const url = `http://${host}`;
 
     let endingLink: TRPCLink<AppRouter>;
 
@@ -61,18 +61,18 @@ export default withTRPC<AppRouter>({
       });
     } else {
       const wsClient = createWSClient({
-        url: isSSR ? "ws://localhost:3002" : "ws://localhost:3002",
+        url: `ws://${host}`,
       });
 
       endingLink = splitLink({
         condition(op) {
-          return op.type === "query" || op.type === "mutation";
+          return op.type === "subscription";
         },
-        true: httpBatchLink({
-          url,
-        }),
-        false: wsLink({
+        true: wsLink({
           client: wsClient,
+        }),
+        false: httpBatchLink({
+          url,
         }),
       });
     }

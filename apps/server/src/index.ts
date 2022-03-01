@@ -1,16 +1,17 @@
-import express from "express";
 import * as trcp from "@trpc/server";
-import * as trpcExpress from "@trpc/server/adapters/express";
-import cors from "cors";
-import { IncomingMessage } from "http";
-import { TRPCError } from "@trpc/server";
-import { applyWSSHandler } from "@trpc/server/adapters/ws";
-import ws from "ws";
+import {
+  CreateFastifyContextOptions,
+  fastifyTRPCPlugin,
+} from "@trpc/server/adapters/fastify";
+import fastify, { FastifyRequest } from "fastify";
+import plugin from "fastify-plugin";
+import ws from "fastify-websocket";
+import cors from "fastify-cors";
 import cookie from "cookie";
+import { TRPCError } from "@trpc/server";
 
 interface Context {
-  type: "http" | "ws";
-  request: IncomingMessage;
+  request: FastifyRequest;
 }
 
 interface Post {
@@ -40,30 +41,30 @@ const posts = trcp.router<Context>().query("getPosts", {
 const priv = trcp
   .router<Context>()
   .middleware(({ ctx, next }) => {
-    let token: string;
-
-    if (ctx.type === "http") {
+    const getTokenFromHeader = () => {
       const authorizationHeader = ctx.request.headers["authorization"];
 
       if (!authorizationHeader) {
-        throw new TRPCError({
-          code: "FORBIDDEN",
-        });
+        return undefined;
       }
 
-      token = authorizationHeader.slice(7);
-    } else {
+      return authorizationHeader.slice(7);
+    };
+
+    const getTokenFromCookie = (): string | undefined => {
       const cookies = ctx.request.headers.cookie
         ? cookie.parse(ctx.request.headers.cookie)
         : {};
 
-      if (!cookies.token) {
-        throw new TRPCError({
-          code: "FORBIDDEN",
-        });
-      }
+      return cookies.token;
+    };
 
-      token = cookies.token;
+    const token = getTokenFromHeader() ?? getTokenFromCookie();
+
+    if (!token) {
+      throw new TRPCError({
+        code: "FORBIDDEN",
+      });
     }
 
     return next({
@@ -91,33 +92,23 @@ const appRouter = trcp
   .merge("posts.", posts)
   .merge("protected.", priv);
 
-const wss = new ws.Server({
-  port: 3002,
+const app = fastify();
+
+app.register(ws);
+app.register(cors, {
+  allowedHeaders: ["authorization", "content-type", "x-ssr", "cookie"],
 });
 
-const handler = applyWSSHandler({
-  wss,
-  router: appRouter,
-  createContext: ({ req }) => ({
-    type: "ws",
-    request: req,
-  }),
-});
-
-const app = express();
-
-app.use(cors());
-
-app.use(
-  "/trpc",
-  trpcExpress.createExpressMiddleware({
+app.register(plugin(fastifyTRPCPlugin), {
+  prefix: "/trpc",
+  useWSS: true,
+  trpcOptions: {
     router: appRouter,
-    createContext: ({ req }) => ({
-      type: "http",
+    createContext: ({ req }: CreateFastifyContextOptions): Context => ({
       request: req,
     }),
-  })
-);
+  },
+});
 
 export type AppRouter = typeof appRouter;
 
