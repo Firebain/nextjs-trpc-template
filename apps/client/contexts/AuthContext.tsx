@@ -4,8 +4,8 @@ import { AppRouter, InferQueryOutput } from "server";
 import { trpc } from "../utils/trpc";
 import { NextComponentType } from "next";
 import { AppContextType, AppPropsType } from "next/dist/shared/lib/utils";
-import cookies from "cookie";
 import Cookie from "js-cookie";
+import { getToken } from "../utils/auth";
 
 interface AuthContext {
   user?: InferQueryOutput<"users.me">;
@@ -32,6 +32,7 @@ const AuthProvider = ({
     ["users.me"],
     {
       enabled: token !== undefined,
+      staleTime: 1000 * 60 * 15,
     }
   );
 
@@ -81,20 +82,7 @@ export const withAuth = (
   };
 
   WithAuth.getInitialProps = (appOrPageCtx: AppContextType) => {
-    const isSSR = typeof window === "undefined";
-
-    let token: string | undefined;
-    if (isSSR) {
-      const cookieHeaders = appOrPageCtx.ctx?.req?.headers?.cookie;
-      const cookieDecoded = cookieHeaders
-        ? cookies.parse(cookieHeaders)
-        : undefined;
-      token = cookieDecoded?.["token"];
-    } else {
-      const cookieDecoded = cookies.parse(document.cookie);
-
-      token = cookieDecoded["token"];
-    }
+    let token = getToken(appOrPageCtx.ctx);
 
     return {
       pageProps: {

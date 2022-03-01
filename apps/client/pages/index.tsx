@@ -2,11 +2,14 @@ import type { NextPage } from "next";
 import Link from "next/link";
 import Layout from "../components/Layout";
 import { useAuth } from "../contexts/AuthContext";
+import { trpc } from "../utils/trpc";
 
-interface HomeProps {}
-
-const Home: React.VFC<HomeProps> = () => {
+const Home: React.VFC = () => {
   const { user, login, logout } = useAuth();
+
+  const { data: posts, isLoading } = trpc.useQuery(["posts.getPosts"], {
+    staleTime: 1000 * 60 * 5,
+  });
 
   const onLogin = async () => {
     await login();
@@ -16,31 +19,42 @@ const Home: React.VFC<HomeProps> = () => {
     await logout();
   };
 
-  if (user) {
-    return (
-      <div>
-        <div>
-          <p>{user!.name}</p>
-          <p>{user!.surname}</p>
-        </div>
-
-        <div>
-          <button onClick={onLogout}>Выйти</button>
-        </div>
-
-        <div>
-          <Link href="/protected">PROTECTED</Link>
-        </div>
-      </div>
-    );
-  } else {
-    return (
-      <div>
-        <p>Не авторизован</p>
-        <button onClick={onLogin}>Авторизоваться</button>
-      </div>
-    );
+  if (isLoading) {
+    return <p>Loading...</p>;
   }
+
+  return (
+    <>
+      {user ? (
+        <div>
+          <div>
+            <p>{user!.name}</p>
+            <p>{user!.surname}</p>
+          </div>
+
+          <div>
+            <button onClick={onLogout}>Выйти</button>
+          </div>
+
+          <div>
+            <Link href="/protected">PROTECTED</Link>
+          </div>
+        </div>
+      ) : (
+        <div>
+          <p>Не авторизован</p>
+          <button onClick={onLogin}>Авторизоваться</button>
+        </div>
+      )}
+
+      {posts!.map((post, index) => (
+        <div key={index}>
+          <p>{post.title}</p>
+          <p>{post.text}</p>
+        </div>
+      ))}
+    </>
+  );
 
   // const {
   //   data: posts,

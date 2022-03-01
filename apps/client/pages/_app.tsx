@@ -1,13 +1,12 @@
 import "../styles/globals.css";
 import { withTRPC as withTRPCSetup } from "@trpc/next";
-import cookie from "cookie";
 import type { AppRouter } from "server";
 import type { AppProps } from "next/app";
 import { createWSClient, wsLink } from "@trpc/client/links/wsLink";
 import { httpBatchLink } from "@trpc/client/links/httpBatchLink";
 import { splitLink } from "@trpc/client/links/splitLink";
-import { TRPCLink } from "@trpc/client";
 import { withAuth } from "../contexts/AuthContext";
+import { getToken } from "../utils/auth";
 
 function MyApp({ Component, pageProps }: AppProps) {
   return <Component {...pageProps} />;
@@ -22,28 +21,12 @@ const withTRPC = withTRPCSetup<AppRouter>({
     const getHeaders = () => {
       let authHeaders: { Authorization?: string } = {};
 
-      if (isSSR) {
-        const cookieHeaders = ctx?.req?.headers?.cookie;
-        const cookieDecoded = cookieHeaders
-          ? cookie.parse(cookieHeaders)
-          : undefined;
-        const token = cookieDecoded?.["token"];
+      const token = getToken(ctx);
 
-        if (token) {
-          authHeaders = {
-            Authorization: `Bearer ${token}`,
-          };
-        }
-      } else {
-        const cookieDecoded = cookie.parse(document.cookie);
-
-        const token = cookieDecoded["token"];
-
-        if (token) {
-          authHeaders = {
-            Authorization: `Bearer ${token}`,
-          };
-        }
+      if (token) {
+        authHeaders = {
+          Authorization: `Bearer ${token}`,
+        };
       }
 
       return {
@@ -54,29 +37,23 @@ const withTRPC = withTRPCSetup<AppRouter>({
 
     const url = `http://${host}`;
 
-    let endingLink: TRPCLink<AppRouter>;
-
-    if (isSSR) {
-      endingLink = httpBatchLink({
-        url,
-      });
-    } else {
-      const wsClient = createWSClient({
-        url: `ws://${host}`,
-      });
-
-      endingLink = splitLink({
-        condition(op) {
-          return op.type === "subscription";
-        },
-        true: wsLink({
-          client: wsClient,
-        }),
-        false: httpBatchLink({
+    let endingLink = isSSR
+      ? httpBatchLink({
           url,
-        }),
-      });
-    }
+        })
+      : splitLink({
+          condition(op) {
+            return op.type === "subscription";
+          },
+          true: wsLink({
+            client: createWSClient({
+              url: `ws://${host}`,
+            }),
+          }),
+          false: httpBatchLink({
+            url,
+          }),
+        });
 
     return {
       url,
