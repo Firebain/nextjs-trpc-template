@@ -12,7 +12,7 @@ interface AuthContext {
   isLoading: boolean;
   isError: boolean;
   error: TRPCClientErrorLike<AppRouter> | null;
-  login: () => Promise<void>;
+  login: (token: string) => Promise<void>;
   logout: () => Promise<void>;
 }
 
@@ -32,20 +32,14 @@ const AuthProvider = ({
     ["users.me"],
     {
       enabled: token !== undefined,
-      staleTime: 1000 * 60 * 15,
+      staleTime: 1000 * 60,
     }
   );
 
-  const getToken = trpc.useMutation("auth.getToken", {
-    onSuccess(token) {
-      Cookie.set("token", token, {
-        sameSite: "Lax",
-      });
-    },
-  });
-
-  const login = async () => {
-    await getToken.mutateAsync();
+  const login = async (token: string) => {
+    Cookie.set("token", token, {
+      sameSite: "Lax",
+    });
 
     await refetch();
   };

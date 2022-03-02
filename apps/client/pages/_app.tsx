@@ -1,4 +1,4 @@
-import "../styles/globals.css";
+import "../styles/globals.scss";
 import { withTRPC as withTRPCSetup } from "@trpc/next";
 import type { AppRouter } from "server";
 import type { AppProps } from "next/app";

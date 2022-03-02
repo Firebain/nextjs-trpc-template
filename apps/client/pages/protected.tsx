@@ -4,7 +4,7 @@ import { useRouter } from "next/router";
 import { NextPage } from "next";
 import { trpc } from "../utils/trpc";
 import { useState } from "react";
-import { InferAsyncSubscriptionOutput, InferSubscriptionOutput } from "server";
+import { InferAsyncSubscriptionOutput } from "server";
 
 type News = InferAsyncSubscriptionOutput<"news.feed">;
 

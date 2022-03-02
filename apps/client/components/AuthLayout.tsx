@@ -2,6 +2,7 @@ import { useAuth } from "../contexts/AuthContext";
 import NextError from "next/error";
 import React from "react";
 import { InferQueryOutput } from "server";
+import Layout from "./Layout";
 
 interface AuthLayoutContext {
   user: InferQueryOutput<"users.me">;
@@ -27,7 +28,7 @@ const AuthLayout: React.FC = ({ children }) => {
 
   return (
     <AuthLayoutContext.Provider value={{ user: user!, logout }}>
-      {children}
+      <Layout>{children}</Layout>
     </AuthLayoutContext.Provider>
   );
 };

@@ -5,15 +5,11 @@ import { useAuth } from "../contexts/AuthContext";
 import { trpc } from "../utils/trpc";
 
 const Home: React.VFC = () => {
-  const { user, login, logout } = useAuth();
+  const { user, logout } = useAuth();
 
   const { data: posts, isLoading } = trpc.useQuery(["posts.getPosts"], {
     staleTime: 1000 * 60 * 5,
   });
-
-  const onLogin = async () => {
-    await login();
-  };
 
   const onLogout = async () => {
     await logout();
@@ -28,12 +24,12 @@ const Home: React.VFC = () => {
       {user ? (
         <div>
           <div>
-            <p>{user!.name}</p>
-            <p>{user!.surname}</p>
+            <p>Name: {user!.name}</p>
+            <p>Surname: {user!.surname}</p>
           </div>
 
           <div>
-            <button onClick={onLogout}>Выйти</button>
+            <button onClick={onLogout}>Logout</button>
           </div>
 
           <div>
@@ -42,8 +38,9 @@ const Home: React.VFC = () => {
         </div>
       ) : (
         <div>
-          <p>Не авторизован</p>
-          <button onClick={onLogin}>Авторизоваться</button>
+          <p>Not authorized</p>
+          <Link href="/auth/signup">Register</Link>
+          <Link href="/auth/login">Login</Link>
         </div>
       )}
 
@@ -55,46 +52,6 @@ const Home: React.VFC = () => {
       ))}
     </>
   );
-
-  // const {
-  //   data: posts,
-  //   isLoading,
-  //   isError,
-  //   error,
-  // } = trpc.useQuery(["posts.getPosts"]);
-
-  // if (isError) {
-  //   return <NextError statusCode={error?.data?.httpStatus ?? 500} />;
-  // }
-
-  // if (isLoading) {
-  //   return <p>Loading...</p>;
-  // }
-
-  // return (
-  //   <div className={styles.container}>
-  //     <Head>
-  //       <title>Main</title>
-  //       <link rel="icon" href="/favicon.ico" />
-  //     </Head>
-
-  //     {posts!.map((post, index) => (
-  //       <div key={index}>
-  //         <p>{post.name}</p>
-  //         <p>{post.text}</p>
-  //       </div>
-  //     ))}
-
-  //     <Link href="/protected">PROTECTED</Link>
-  //   </div>
-  // );
-
-  // return (
-  //   <>
-  //     <div>123</div>
-  //     <Link href="/protected">PROTECTED</Link>
-  //   </>
-  // );
 };
 
 const HomePage: NextPage = () => {
