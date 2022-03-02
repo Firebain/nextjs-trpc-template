@@ -24,7 +24,8 @@
     "react-hook-form": "^7.27.1",
     "react-query": "^3.34.16",
     "sass": "^1.49.9",
-    "server": "*"
+    "server": "*",
+    "zod": "^3.13.2"
   },
   "devDependencies": {
     "@types/node": "17.0.21",

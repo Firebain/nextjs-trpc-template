@@ -1,77 +1,68 @@
-# Turborepo starter
+# NextJS + TRPC server template
 
-This is an official Yarn v1 starter turborepo.
+The template for full-stack apps
 
 ## What's inside?
 
-This turborepo uses [Yarn](https://classic.yarnpkg.com/lang/en/) as a package manager. It includes the following packages/apps:
+[Turborepo](https://github.com/vercel/turborepo) helps to work with multiple apps simultaneously
 
-### Apps and Packages
+The template consists of two parts: server and client. Core technologies in it:
 
-- `docs`: a [Next.js](https://nextjs.org) app
-- `web`: another [Next.js](https://nextjs.org) app
-- `ui`: a stub React component library shared by both `web` and `docs` applications
-- `config`: `eslint` configurations (includes `eslint-config-next` and `eslint-config-prettier`)
-- `tsconfig`: `tsconfig.json`s used throughout the monorepo
+### On the Server
 
-Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
+- [Fastify](https://github.com/fastify/fastify): Backend framework
+- [Prisma](https://github.com/prisma/prisma): Database ORM
 
-### Utilities
+### On the Client
 
-This turborepo has some additional tools already setup for you:
+- [NextJS](https://github.com/vercel/next.js): React SSR Framework
+- [React Hook Form](https://github.com/react-hook-form/react-hook-form): It makes easier to work with forms
+- [React Query](https://github.com/tannerlinsley/react-query): Fetching, caching and updating data
 
-- [TypeScript](https://www.typescriptlang.org/) for static type checking
-- [ESLint](https://eslint.org/) for code linting
-- [Prettier](https://prettier.io) for code formatting
+### On both
 
-## Setup
+- [Zod](https://github.com/colinhacks/zod): Validation
+- [TRPC](https://github.com/colinhacks/zod): Type safe RPC client
 
-This repository is used in the `npx create-turbo` command, and selected when choosing which package manager you wish to use with your monorepo (Yarn).
+Each app is 100% [TypeScript](https://www.typescriptlang.org/)
 
-### Build
+Additional implemented features:
 
-To build all apps and packages, run the following command:
+- WebSockets
+- Authorization
 
-```
-cd my-turborepo
-yarn run build
-```
+## Quick start
 
-### Develop
-
-To develop all apps and packages, run the following command:
+Clone this repo, install all dependencies, and create `.env`
 
 ```
-cd my-turborepo
-yarn run dev
+git clone git@github.com:Firebain/nextjs-trpc-template.git
+cd nextjs-trpc-template
+yarn install
+cp apps/server/.env.example apps/server/.env
 ```
 
-### Remote Caching
+Set `DATABASE_URL` value in `.env`
 
-Turborepo can use a technique known as [Remote Caching (Beta)](https://turborepo.org/docs/features/remote-caching) to share cache artifacts across machines, enabling you to share build caches with your team and CI/CD pipelines.
-
-By default, Turborepo will cache locally. To enable Remote Caching (Beta) you will need an account with Vercel. If you don't have an account you can [create one](https://vercel.com/signup), then enter the following commands:
+Migrate tables to database
 
 ```
-cd my-turborepo
-npx turbo login
+yarn push
 ```
 
-This will authenticate the Turborepo CLI with your [Vercel account](https://vercel.com/docs/concepts/personal-accounts/overview).
-
-Next, you can link your Turborepo to your Remote Cache by running the following command from the root of your turborepo:
+Run the project for developing
 
 ```
-npx turbo link
+yarn dev
 ```
 
-## Useful Links
+Or build and run project for production
 
-Learn more about the power of Turborepo:
+```
+yarn start
+```
 
-- [Pipelines](https://turborepo.org/docs/features/pipelines)
-- [Caching](https://turborepo.org/docs/features/caching)
-- [Remote Caching (Beta)](https://turborepo.org/docs/features/remote-caching)
-- [Scoped Tasks](https://turborepo.org/docs/features/scopes)
-- [Configuration Options](https://turborepo.org/docs/reference/configuration)
-- [CLI Usage](https://turborepo.org/docs/reference/command-line-reference)
+## Should I use it?
+
+It's up to you. I built it for my personal use because I was tired of copy-pasting code from my old projects again and again.
+There are no tests or guarantees that the code works. Use it at your own risk.

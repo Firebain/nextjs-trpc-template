@@ -17,7 +17,7 @@ const SignUp: React.VFC = () => {
     if (user) {
       router.push("/protected");
     }
-  }, [user]);
+  }, [user, router]);
 
   const {
     register,

@@ -4,6 +4,7 @@
     "module": "commonjs",
     "target": "es2020",
     "lib": ["es2020"],
+    "declaration": true,
     "incremental": true,
     "noEmitOnError": true,
     "esModuleInterop": true,

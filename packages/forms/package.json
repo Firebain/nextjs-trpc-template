@@ -1,9 +1,14 @@
 {
   "name": "forms",
   "version": "1.0.0",
-  "main": "src/index.ts",
+  "main": "build/index.js",
+  "types": "build/index.d.ts",
   "scripts": {
+    "dev": "tsc --watch",
     "build": "tsc"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "zod": "^3.13.2"
+  }
 }

@@ -9,16 +9,13 @@ export type GetUserToken = z.infer<typeof GetUserToken>;
 
 export const CreateUser = z
   .object({
-    name: z
-      .string()
-      .min(2, "Имя должно состоять минимум из 2 символов")
-      .max(20, "Имя должно быть меньше 20 символов"),
+    name: z.string().min(2).max(20),
     email: z.string().email(),
     password: z.string(),
     confirm_password: z.string(),
   })
   .refine(({ password, confirm_password }) => password === confirm_password, {
-    message: "Пароли не совпадают",
+    message: "Password wont match",
     path: ["password"],
   });
 

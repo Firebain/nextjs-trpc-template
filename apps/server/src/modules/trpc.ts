@@ -11,16 +11,22 @@ export interface Context {
 
 export const createGlobalRouter = () =>
   trcp.router<Context>().formatError(({ shape, error }) => {
-    console.error(error);
+    const isZodError =
+      error.code === "BAD_REQUEST" && error.cause instanceof ZodError;
+
+    if (
+      !isZodError &&
+      error.code !== "UNAUTHORIZED" &&
+      error.code !== "FORBIDDEN"
+    ) {
+      console.error(error);
+    }
 
     return {
       ...shape,
       data: {
         ...shape.data,
-        zodError:
-          error.code === "BAD_REQUEST" && error.cause instanceof ZodError
-            ? error.cause.flatten()
-            : null,
+        zodError: isZodError ? error.cause.flatten() : null,
       },
     };
   });

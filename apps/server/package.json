@@ -4,6 +4,7 @@
   "main": "src/index.ts",
   "scripts": {
     "dev": "tsnd --exit-child src/index.ts",
+    "start": "node build/index.js",
     "push": "prisma db push",
     "build": "tsc"
   },
