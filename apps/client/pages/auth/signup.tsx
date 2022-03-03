@@ -6,18 +6,12 @@ import { trpc } from "../../utils/trpc";
 import { useAuth } from "../../contexts/AuthContext";
 import { formHandler } from "../../helpers/errors";
 import { useRouter } from "next/router";
-import { useEffect } from "react";
+import Navigate from "../../components/Navigate";
 
 const SignUp: React.VFC = () => {
   const router = useRouter();
 
   const { user, login } = useAuth();
-
-  useEffect(() => {
-    if (user) {
-      router.push("/protected");
-    }
-  }, [user, router]);
 
   const {
     register,
@@ -39,7 +33,7 @@ const SignUp: React.VFC = () => {
   });
 
   if (user) {
-    return null;
+    return <Navigate href="/protected" />;
   }
 
   return (
