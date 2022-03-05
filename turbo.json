@@ -12,7 +12,6 @@
     },
     "deps": {},
     "push": {
-      "dependsOn": ["build"],
       "cache": false
     },
     "start": {
