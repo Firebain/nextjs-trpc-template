@@ -10,6 +10,7 @@
     "client#build": {
       "dependsOn": ["forms#build"]
     },
+    "deps": {},
     "push": {
       "dependsOn": ["build"],
       "cache": false

@@ -9,6 +9,7 @@
   "scripts": {
     "build": "turbo run build --parallel",
     "dev": "turbo run dev --parallel",
+    "deps": "turbo run build --scope=forms --no-deps",
     "start": "turbo run build push start --parallel"
   },
   "devDependencies": {

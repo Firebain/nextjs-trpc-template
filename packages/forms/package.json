@@ -2,7 +2,7 @@
   "name": "forms",
   "version": "1.0.0",
   "main": "build/index.js",
-  "types": "build/index.d.ts",
+  "types": "src/index.ts",
   "scripts": {
     "dev": "tsc --watch",
     "build": "tsc"

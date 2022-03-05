@@ -44,6 +44,12 @@ cp apps/server/.env.example apps/server/.env
 
 Set `DATABASE_URL` value in `.env`
 
+Build package dependencies
+
+```
+yarn deps
+```
+
 Migrate tables to database
 
 ```
@@ -56,7 +62,7 @@ Run the project for developing
 yarn dev
 ```
 
-Or build and run project for production
+Or build entire project and run it in production mode
 
 ```
 yarn start

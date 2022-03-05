@@ -10,7 +10,7 @@ const Navigate: React.VFC<NavigateProps> = ({ href }) => {
 
   useEffect(() => {
     router.push(href);
-  }, [router]);
+  }, [router, href]);
 
   return null;
 };
