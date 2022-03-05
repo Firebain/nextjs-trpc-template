@@ -8,16 +8,28 @@ import { splitLink } from "@trpc/client/links/splitLink";
 import { withAuth } from "../contexts/AuthContext";
 import { getToken } from "../utils/auth";
 
+const isSSR = typeof window === "undefined";
+
+const host = isSSR ? "localhost:3001/trpc" : "localhost:3001/trpc";
+
+const url = `http://${host}`;
+
+const wsClient = !isSSR
+  ? createWSClient({
+      url: `ws://${host}`,
+    })
+  : null;
+
+export const reconnectWebscokets = () => {
+  wsClient!.getConnection().close();
+};
+
 function MyApp({ Component, pageProps }: AppProps) {
   return <Component {...pageProps} />;
 }
 
 const withTRPC = withTRPCSetup<AppRouter>({
   config({ ctx }) {
-    const isSSR = typeof window === "undefined";
-
-    const host = isSSR ? "localhost:3001/trpc" : "localhost:3001/trpc";
-
     const getHeaders = () => {
       let authHeaders: { Authorization?: string } = {};
 
@@ -35,8 +47,6 @@ const withTRPC = withTRPCSetup<AppRouter>({
       };
     };
 
-    const url = `http://${host}`;
-
     let endingLink = isSSR
       ? httpBatchLink({
           url,
@@ -46,9 +56,7 @@ const withTRPC = withTRPCSetup<AppRouter>({
             return op.type === "subscription";
           },
           true: wsLink({
-            client: createWSClient({
-              url: `ws://${host}`,
-            }),
+            client: wsClient!,
           }),
           false: httpBatchLink({
             url,

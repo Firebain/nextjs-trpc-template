@@ -6,6 +6,7 @@ import { NextComponentType } from "next";
 import { AppContextType, AppPropsType } from "next/dist/shared/lib/utils";
 import Cookie from "js-cookie";
 import { getToken } from "../utils/auth";
+import { reconnectWebscokets } from "../pages/_app";
 
 interface AuthContext {
   user?: InferQueryOutput<"users.me">;
@@ -42,12 +43,16 @@ const AuthProvider = ({
     });
 
     await refetch();
+
+    reconnectWebscokets();
   };
 
   const logout = async () => {
     Cookie.remove("token");
 
     utils.queryClient.setQueryData("users.me", undefined);
+
+    reconnectWebscokets();
   };
 
   const value: AuthContext = {
