@@ -10,17 +10,8 @@ import fastify from "fastify";
 import plugin from "fastify-plugin";
 import ws from "fastify-websocket";
 import cors from "fastify-cors";
-import { Context, createGlobalRouter } from "./modules/trpc";
-import { users } from "./routers/user";
-import { auth } from "./routers/auth";
-import { posts } from "./routers/posts";
-import { news } from "./routers/news";
-
-export const appRouter = createGlobalRouter()
-  .merge("users.", users)
-  .merge("auth.", auth)
-  .merge("posts.", posts)
-  .merge("news.", news);
+import { Context } from "./modules/trpc";
+import { appRouter } from "./routers";
 
 const app = fastify();
 
